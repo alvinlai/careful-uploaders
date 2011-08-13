@@ -1,4 +1,5 @@
 ;(function() {
+"use strict";
 
 window.UploadCare = {
 
@@ -101,8 +102,17 @@ window.UploadCare = {
         } else {
             this._readyCallbacks.push(callback)
         }
+    },
+
+    // Get user public key from current script tag.
+    getPublicKey: function () {
+        var scripts = document.getElementsByTagName('script');
+        var current = scripts[scripts.length - 1];
+        this.publicKey = current.getAttribute('data-public-key');
     }
 
 };
+
+UploadCare.getPublicKey();
 
 })();
