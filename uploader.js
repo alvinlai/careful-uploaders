@@ -1,4 +1,26 @@
-;(function() {
+/*
+ * Copyright (c) 2011 UploadCare
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+;(function () {
 "use strict";
 
 window.UploadCare = {
@@ -10,16 +32,23 @@ window.UploadCare = {
     _readyCallbacks: [],
 
     // jQuery version for UploadCare.
-    _jQVersion: 1.6,
+    _jQueryMinVersion: [1, 5, 0],
 
     // URL to get jQuery from CDN.
-    _jQCDN: 'http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js',
+    _jQueryCDN: 'http://ajax.googleapis.com/ajax/libs/' +
+                'jquery/1.6.2/jquery.min.js',
+
+    // ID counter to have unique iframe IDs.
+    _lastIframeId: 0
 
     // jQuery object for UploadCare.
     jQuery: null,
 
     // API public key.
     publicKey: null,
+
+    // UploadCare upload server URL.
+    uploadUrl: 'http://localhost:8000/upload/iframe/',
 
     // Call `callback`, when HTML is loaded.
     _domReady: function (callback) {
@@ -60,17 +89,87 @@ window.UploadCare = {
         }
     },
 
+    // Hide form or iframe by absolute position.
+    _hide: function (node) {
+        node.css('position', 'absolute').
+             css('left', '-9999px').css('top', '-9999px');
+    },
+
+    // Create iframe to upload file by AJAX.
+    _createIframe: function () {
+        this._lastIframeId += 1;
+        var id = 'uploadcareIframe' + this._lastIframeId;
+        var iframe = $('<iframe />').attr('id', id);
+        this._hide(iframe.css('position', 'absolute'));
+        iframe.appendTo('body');
+        return iframe;
+    },
+
+    // Create form, link it action to `iframe` and clone `file` inside.
+    _createFormForIframe: function (iframe, file, id) {
+        var form = $('<form />').attr({
+            method:  'POST',
+            action:  this.uploadUrl,
+            enctype: 'multipart/form-data',
+            target:  iframe.id
+        });
+        this.hide(form);
+
+        $.each({ PUB_KEY: this.publicKey, FILE_ID: id }, function (name, val) {
+            $('<input type="hidden" />').
+                attr('name', 'UPLOADCARE_' + name).val(val).appendTo(form);
+        })
+
+        var next = file.clone();
+        next.insertBefore(file);
+        file.appendTo(form);
+
+        return form.appendTo('body');
+    },
+
+    // Generate UUID for upload file ID.
+    _uuid: function () {
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16|0,
+                v = (c == 'x' ? r : (r&0x3|0x8));
+            return v.toString(16);
+        });
+    },
+
+    // Check, that jQuery loaded and have correct version.
+    _checkJQuery: function () {
+        if ( !window.jQuery ) {
+            return false;
+        }
+        var require, subversion, version = jQuery.fn.jquery.split('.')
+        for (var i = 0; i < this._jQueryMinVersion; i++) {
+            require    = this._jQueryMinVersion[i]
+            subversion = parseInt(version[i]);
+            if ( require > subversion ) {
+                return false
+            } else if ( if ( require < subversion ) {
+                return true
+            }
+        }
+        return true
+    },
+
     // Initialize jQuery object and call all function added by `ready`.
     init: function () {
+        if ( this.checkJQuery() ) {
+            this.jQuery = window.jQuery;
+            this._callReadyCallbacks();
+        }
+
         this._domReady(function () {
             var min = this._jQueryVersion;
-            if ( window.jQuery && parseFloat(jQuery.fn.jquery) >= min ) {
+            if ( this.checkJQuery() ) {
                 this.jQuery = window.jQuery;
                 this._callReadyCallbacks();
             } else {
                 var script = document.createElement('script');
-                script.src = this._jQCDN;
-                var onload = function() {
+                script.src = this._jQueryCDN;
+                var onload = function () {
                     window.jQuery.noConflict();
                     UploadCare.jQuery = jQuery;
                     window.jQuery = UploadCare._originjQuery;
@@ -109,10 +208,42 @@ window.UploadCare = {
         var scripts = document.getElementsByTagName('script');
         var current = scripts[scripts.length - 1];
         this.publicKey = current.getAttribute('data-public-key');
+    },
+
+    // Upload file to UploadCare from `file` input and save file ID to
+    // `hidden` input.
+    upload: function (file, hidden) {
+        hidden.trigger('uploadcare.start');
+
+        var iframe = this._createIframe();
+        var id     = this.uuid();
+        var form   = this._createFormForIframe(iframe, file, id);
+
+        var deferred   = $.Deferred();
+        var complete   = function()
+            iframe.remove();
+            form.remove();
+            hidden.trigger('uploadcare.complete');
+        }
+        iframe.onload  = function () {
+            hidden.val(id);
+            hidden.trigger('uploadcare.success');
+            deferred.resolve();
+            complete();
+        }
+        iframe.onerror = function () {
+            hidden.trigger('uploadcare.error');
+            deferred.reject();
+            complete();
+        }
+
+        form.submit();
+        return deferred.promise();
     }
 
 };
 
 UploadCare.getPublicKey();
+UploadCare.init();
 
 })();
