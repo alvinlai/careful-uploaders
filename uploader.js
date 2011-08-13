@@ -128,6 +128,7 @@ window.UploadCare = {
     },
 
     // Generate UUID for upload file ID.
+    // Taken from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript/2117523#2117523
     _uuid: function () {
         'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random() * 16|0,
