@@ -13,9 +13,9 @@ task('build', [], function () {
         fs.mkdirSync('pkg/', 0755);
     }
     for (widget in widgets) {
-        var js = widgets[widget].reduce(function(file, all) {
+        var js = widgets[widget].reduce(function(all, file) {
             return all + fs.readFileSync('lib/' + file);
-        });
+        }, '');
 
         var ast = uglify.parser.parse(js);
         ast = uglify.uglify.ast_mangle(ast);
