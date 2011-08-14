@@ -1,6 +1,7 @@
 var fs     = require('fs');
 var path   = require('path');
 var uglify = require('uglify-js');
+var wrench = require('wrench');
 
 var widgets = {
     plain: ['uploader.js', 'plain-widget.js']
@@ -12,9 +13,8 @@ task('build', [], function () {
         fs.mkdirSync('pkg/', 0755);
     }
     for (widget in widgets) {
-        var js = '';
-        widgets[widget].forEach(function(file) {
-            js += fs.readFileSync('lib/' + file);
+        var js = widgets[widget].reduce(function(file, all) {
+            return all + fs.readFileSync('lib/' + file);
         });
 
         var ast = uglify.parser.parse(js);
@@ -22,8 +22,15 @@ task('build', [], function () {
         ast = uglify.uglify.ast_squeeze(ast);
         js  = uglify.uglify.gen_code(ast);
 
-        var widgetFile = fs.openSync('pkg/' + widget + '.js', 'w+');
-        fs.writeSync(widgetFile, js);
-        fs.closeSync(widgetFile);
+        var io = fs.openSync('pkg/' + widget + '.js', 'w+');
+        fs.writeSync(io, js);
+        fs.closeSync(io);
+    }
+});
+
+desc('Delete all generated files.');
+task('clobber', [], function () {
+    if ( path.existsSync('pkg/') ) {
+        wrench.rmdirSyncRecursive('pkg/');
     }
 });
