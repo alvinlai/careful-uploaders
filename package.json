@@ -1,0 +1,8 @@
+{
+  "name": "careful-uploaders",
+  "version": "0.0.1",
+  "dependencies": {
+    "jake":      "0.1.8",
+    "uglify-js": "1.0.6"
+  }
+}
