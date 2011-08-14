@@ -63,7 +63,7 @@ UploadCare.Plain = {
     enlive: function (inputs) {
         var $ = UploadCare.jQuery;
         inputs.each(function (_, input) {
-            var file = $('<input type="file" />');
+            var file = $('<input type="file" name="file" />');
             file.addClass('uploadcare-uploader');
             file.insertAfter(input);
 

@@ -92,15 +92,14 @@ window.UploadCare = {
 
     // Hide form or iframe by absolute position.
     _hide: function (node) {
-        node.css('position', 'absolute').
-             css('left', '-9999px').css('top', '-9999px');
+        node.css('position', 'absolute').css('top', '-9999px');
     },
 
     // Create iframe to upload file by AJAX.
     _createIframe: function () {
         this._lastIframeId += 1;
         var id = 'uploadcareIframe' + this._lastIframeId;
-        var iframe = this.jQuery('<iframe />').attr('id', id);
+        var iframe = this.jQuery('<iframe />').attr({ id: id, name: id });
         this._hide(iframe.css('position', 'absolute'));
         iframe.appendTo('body');
         return iframe;
@@ -124,9 +123,10 @@ window.UploadCare = {
 
         var next = file.clone();
         next.insertBefore(file);
+        form.appendTo('body');
         file.appendTo(form);
 
-        return form.appendTo('body');
+        return form;
     },
 
     // Generate UUID for upload file ID.
