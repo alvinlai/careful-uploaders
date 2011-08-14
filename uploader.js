@@ -39,7 +39,7 @@ window.UploadCare = {
                 'jquery/1.6.2/jquery.min.js',
 
     // ID counter to have unique iframe IDs.
-    _lastIframeId: 0
+    _lastIframeId: 0,
 
     // jQuery object for UploadCare.
     jQuery: null,
@@ -84,6 +84,7 @@ window.UploadCare = {
 
     // Call all callbacks, which were added by `ready` method.
     _callReadyCallbacks: function () {
+        this._initialized = true;
         for (var i = 0; i < this._readyCallbacks.length; i++) {
             this._readyCallbacks[i].call(this, this.jQuery);
         }
@@ -99,7 +100,7 @@ window.UploadCare = {
     _createIframe: function () {
         this._lastIframeId += 1;
         var id = 'uploadcareIframe' + this._lastIframeId;
-        var iframe = $('<iframe />').attr('id', id);
+        var iframe = this.jQuery('<iframe />').attr('id', id);
         this._hide(iframe.css('position', 'absolute'));
         iframe.appendTo('body');
         return iframe;
@@ -107,13 +108,14 @@ window.UploadCare = {
 
     // Create form, link it action to `iframe` and clone `file` inside.
     _createFormForIframe: function (iframe, file, id) {
+        var $ = this.jQuery;
         var form = $('<form />').attr({
             method:  'POST',
             action:  this.uploadUrl,
             enctype: 'multipart/form-data',
-            target:  iframe.id
+            target:  iframe.attr('id')
         });
-        this.hide(form);
+        this._hide(form);
 
         $.each({ PUB_KEY: this.publicKey, FILE_ID: id }, function (name, val) {
             $('<input type="hidden" />').
@@ -130,11 +132,12 @@ window.UploadCare = {
     // Generate UUID for upload file ID.
     // Taken from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript/2117523#2117523
     _uuid: function () {
-        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16|0,
-                v = (c == 'x' ? r : (r&0x3|0x8));
-            return v.toString(16);
-        });
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
+            replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16|0,
+                    v = (c == 'x' ? r : (r&0x3|0x8));
+                return v.toString(16);
+            });
     },
 
     // Check, that jQuery loaded and have correct version.
@@ -148,7 +151,7 @@ window.UploadCare = {
             subversion = parseInt(version[i]);
             if ( require > subversion ) {
                 return false
-            } else if ( if ( require < subversion ) {
+            } else if ( require < subversion ) {
                 return true
             }
         }
@@ -157,14 +160,14 @@ window.UploadCare = {
 
     // Initialize jQuery object and call all function added by `ready`.
     init: function () {
-        if ( this.checkJQuery() ) {
+        if ( this._checkJQuery() ) {
             this.jQuery = window.jQuery;
             this._callReadyCallbacks();
         }
 
         this._domReady(function () {
             var min = this._jQueryVersion;
-            if ( this.checkJQuery() ) {
+            if ( this._checkJQuery() ) {
                 this.jQuery = window.jQuery;
                 this._callReadyCallbacks();
             } else {
@@ -217,26 +220,26 @@ window.UploadCare = {
         hidden.trigger('uploadcare.start');
 
         var iframe = this._createIframe();
-        var id     = this.uuid();
+        var id     = this._uuid();
         var form   = this._createFormForIframe(iframe, file, id);
 
-        var deferred   = $.Deferred();
-        var complete   = function()
+        var deferred = this.jQuery.Deferred();
+        var complete = function () {
             iframe.remove();
             form.remove();
             hidden.trigger('uploadcare.complete');
         }
-        iframe.onload  = function () {
+        iframe.bind('load', function () {
             hidden.val(id);
             hidden.trigger('uploadcare.success');
             deferred.resolve();
             complete();
-        }
-        iframe.onerror = function () {
+        });
+        iframe.bind('error', function () {
             hidden.trigger('uploadcare.error');
             deferred.reject();
             complete();
-        }
+        });
 
         form.submit();
         return deferred.promise();

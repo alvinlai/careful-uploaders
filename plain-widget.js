@@ -23,25 +23,25 @@
 ;(function () {
 "use strict";
 
-UploadCare.ready(function ($) {
+// Plain uploader widget. It create simple file input before every hidden
+// input with `uploadcare-plain-uploader` role. When user select file,
+// widget will upload it by AJAX and set file ID to hidden input value.
+//
+// If you will add AJAX content and want to enlive new hidden inputs, call
+// `UploadCare.Plain.init` with new content:
+//
+//     $.get('/next/page', function (html) {
+//       var newContent = $(html).appendTo('.list');
+//       UploadCare.Plain.init(newContent);
+//     });
+UploadCare.Plain = {
 
-    // Plain uploader widget. It create simple file input before every hidden
-    // input with `uploadcare-uploader` role. When user select file, widget will
-    // upload it by AJAX and set file ID to hidden input value.
-    //
-    // If you will add AJAX content and want to enlive new hidden inputs, call
-    // `UploadCare.Plain.init` with new content:
-    //
-    //     $.get('/next/page', function (html) {
-    //       var newContent = $(html).appendTo('.list');
-    //       UploadCare.Plain.init(newContent);
-    //     });
-    UploadCare.Plain = {
-
-        // Add widgets to inputs inside `base`. You can pass DOM node or jQuery
-        // objects.
-        init: function (base) {
+    // Add widgets to inputs inside `base`. You can pass DOM node or jQuery
+    // objects.
+    init: function (base) {
+        UploadCare.ready(function ($) {
             var inputs = null;
+            var $ = UploadCare.jQuery;
             if ( typeof(base.length) == 'undefined' ) {
                 if ( base.tagName == 'input') {
                     inputs = $(base);
@@ -52,31 +52,33 @@ UploadCare.ready(function ($) {
                 }
             }
             if ( inputs === null ) {
-                $('[role=uploadcare-uploader]', base)
+                inputs = $('[role=uploadcare-plain-uploader]', base)
             }
 
-            this.enlive(inputs);
-        }
+            UploadCare.Plain.enlive(inputs);
+        });
+    },
 
-        // Add file inputs after hidden `inputs` to upload file to UploadCare.
-        enlive: function (inputs) {
-            inputs.each(function (_, input) {
-                var file = $('<input type="file" />');
-                file.addClass('uploadcare-uploader');
-                file.insertAfter(input);
+    // Add file inputs after hidden `inputs` to upload file to UploadCare.
+    enlive: function (inputs) {
+        var $ = UploadCare.jQuery;
+        inputs.each(function (_, input) {
+            var file = $('<input type="file" />');
+            file.addClass('uploadcare-uploader');
+            file.insertAfter(input);
 
-                file.change(function () {
-                    UploadCare.upload(file, input);
-                });
+            file.change(function () {
+                UploadCare.upload(file, $(input));
             });
-        }
-
+        });
     }
 
+}
+
+UploadCare.ready(function ($) {
     $(document).ready(function () {
         UploadCare.Plain.init($('body'));
     });
-
 });
 
 })();
