@@ -48,7 +48,7 @@ window.UploadCare = {
     publicKey: null,
 
     // UploadCare upload server URL.
-    uploadUrl: 'http://localhost:8000/upload/iframe/',
+    uploadUrl: 'http://upload.uploadcare.com/iframe/',
 
     // Call `callback`, when HTML is loaded.
     _domReady: function (callback) {
