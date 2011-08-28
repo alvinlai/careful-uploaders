@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Version – jQuery loading test</title>
+        <style>
+            .tests li {
+                color: red;
+            }
+            .tests li.ok {
+                color: green;
+            }
+        </style>
+        <script>
+            window.jQuery = {
+                fn: { jquery: '1.4.0' },
+                mock: true
+            };
+            window.$ = window.jQuery;
+        </script>
+        <script src="./../../lib/uploader.js"></script>
+    </head>
+    <body>
+        <h1>jQuery have wrong version</h1>
+        <ul class="tests">
+            <li id="loaded">jQuery is loaded to UploadCare</li>
+            <li id="local">jQuery isn’t taken from global</li>
+            <li id="script-tag">jQuery is loaded by addition script tag</li>
+            <li id="origin">Page jQuery isn’t changed</li>
+        </ul>
+        <script>
+            (function() {
+                UploadCare._jQueryCDN = './../../node_modules/' +
+                                        'jquery/dist/node-jquery.js';
+
+                var test = function (id, check) {
+                    var result = document.getElementById(id);
+                    result.className = check ? 'ok' : 'error';
+                };
+
+                UploadCare.ready(function() {
+                    var scripts = document.getElementsByTagName('script');
+                    test('loaded',     typeof(UploadCare.jQuery) == 'function');
+                    test('local',      UploadCare.jQuery != jQuery);
+                    test('script-tag', scripts.length == 4);
+                    test('origin',     jQuery.mock && $.mock);
+                });
+            })();
+        </script>
+    </body>
+</html>
