@@ -34,3 +34,41 @@ task('clobber', [], function () {
         wrench.rmdirSyncRecursive('pkg/');
     }
 });
+
+desc('Run specs server.');
+task('test', [], function () {
+    var server = require('jasmine-runner/lib/server').newServer({
+        src_dir:   "/lib/",
+        spec_dir:  "/spec/",
+        server:    { "port": 8124 },
+        externals: []
+    });
+
+    var srcs = ['/jquery.js',
+                '/lib/uploader.js',
+                '/lib/plain-widget.js'];
+
+    server.app.remove('/', 'get');
+    server.app.get('/', function (req, res)  {
+        var specs = fs.readdirSync('spec/').
+            filter(function (file) {
+                return file.match(/(.js|.coffee)$/)
+            }).
+            map(function (file) {
+                return '/spec/' + file;
+            })
+        res.render('index.jade', {
+            locals: {
+                srcs: srcs,
+                specs: specs,
+                externals: []
+            },
+            layout: false
+        });
+    });
+    server.app.get('/jquery.js', function (req, res) {
+        res.send(fs.readFileSync('node_modules/jquery/dist/node-jquery.js'));
+    });
+
+    server.start();
+});
