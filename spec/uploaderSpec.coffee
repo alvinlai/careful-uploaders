@@ -48,3 +48,21 @@ describe 'UploadCare', ->
       expect(noCallback).not.toHaveBeenCalled()
       expect(version).toHaveBeenCalled()
       expect(UploadCare._getJQuery).not.toHaveBeenCalled()
+
+  describe '.ready', ->
+
+    it 'should call callback, when UploadCare be initialized', ->
+      UploadCare.initialized = false
+      this.after -> UploadCare.initialized = true
+
+      callback = jasmine.createSpy()
+      UploadCare.ready(callback)
+      expect(callback).not.toHaveBeenCalled()
+
+      UploadCare._callReadyCallbacks()
+      expect(callback).toHaveBeenCalledWith(UploadCare.jQuery)
+      expect(UploadCare.initialized).toBeTruthy()
+
+      another = jasmine.createSpy()
+      UploadCare.ready(another)
+      expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
