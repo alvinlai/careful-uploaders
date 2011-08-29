@@ -20,6 +20,7 @@
             <li id="local">jQuery isn’t taken from global</li>
             <li id="script-tag">jQuery is loaded by addition script tag</li>
             <li id="window">jQuery isn’t loaded to window</li>
+            <li id="cdn">jQuery is loaded from CDN</li>
         </ul>
         <script>
             (function() {
@@ -38,6 +39,7 @@
                     test('script-tag', scripts.length == 3);
                     test('window',     typeof(jQuery) == 'undefined' &&
                                        typeof($)      == 'undefined');
+                    test('cdn',        scripts[1].src.match(/node_modules/));
                 });
             })();
         </script>

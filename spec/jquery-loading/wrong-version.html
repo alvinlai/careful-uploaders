@@ -11,6 +11,7 @@
                 color: green;
             }
         </style>
+        <script src="./../../lib/uploader.js"></script>
         <script>
             window.jQuery = {
                 fn: { jquery: '1.4.0' },
@@ -18,7 +19,6 @@
             };
             window.$ = window.jQuery;
         </script>
-        <script src="./../../lib/uploader.js"></script>
     </head>
     <body>
         <h1>jQuery have wrong version</h1>
@@ -27,6 +27,7 @@
             <li id="local">jQuery isn’t taken from global</li>
             <li id="script-tag">jQuery is loaded by addition script tag</li>
             <li id="origin">Page jQuery isn’t changed</li>
+            <li id="cdn">jQuery is loaded from CDN</li>
         </ul>
         <script>
             (function() {
@@ -44,6 +45,7 @@
                     test('local',      UploadCare.jQuery != jQuery);
                     test('script-tag', scripts.length == 4);
                     test('origin',     jQuery.mock && $.mock);
+                    test('cdn',        scripts[2].src.match(/node_modules/));
                 });
             })();
         </script>
