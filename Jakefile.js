@@ -35,9 +35,11 @@ task('clobber', [], function () {
     }
 });
 
+var server;
+
 desc('Run specs server.');
 task('test', [], function () {
-    var server = require('jasmine-runner/lib/server').newServer({
+    server = require('jasmine-runner/lib/server').newServer({
         src_dir:   "/lib/",
         spec_dir:  "/spec/",
         server:    { "port": 8124 },
@@ -71,4 +73,9 @@ task('test', [], function () {
     });
 
     server.start();
+});
+
+desc('Monitor for changes and rerun tests');
+task('monitor', ['test'], function () {
+    require('jasmine-runner/lib/monitor').startMonitor(server);
 });
