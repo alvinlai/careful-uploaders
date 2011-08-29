@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset='UTF-8'>
-        <title>Before – jQuery loading test</title>
+        <title>Public Key – UploadCare tests</title>
         <style>
             .tests li {
                 color: red;
@@ -12,13 +12,12 @@
             }
         </style>
         <script src="./../../node_modules/jquery/dist/node-jquery.js"></script>
-        <script src="./../../lib/uploader.js"></script>
+        <script src="./../../lib/uploader.js" data-public-key="ABCDEF"></script>
     </head>
     <body>
-        <h1>jQuery is loaded before UploadCare</h1>
+        <h1>UploadCare Public Key</h1>
         <ul class="tests">
-            <li id="loaded">jQuery is loaded to UploadCare</li>
-            <li id="global">jQuery is taken from global</li>
+            <li id="get">UploadCare get public key from data attribute</li>
         </ul>
         <script>
             (function() {
@@ -28,8 +27,7 @@
                 };
 
                 UploadCare.ready(function() {
-                    test('loaded', typeof(UploadCare.jQuery) == 'function');
-                    test('global', UploadCare.jQuery === jQuery);
+                    test('get', UploadCare.publicKey == 'ABCDEF');
                 });
             })();
         </script>

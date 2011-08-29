@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Before – jQuery loading – UploadCare tests</title>
+        <style>
+            .tests li {
+                color: red;
+            }
+            .tests li.ok {
+                color: green;
+            }
+        </style>
+        <script src="./../../node_modules/jquery/dist/node-jquery.js"></script>
+        <script src="./../../lib/uploader.js"></script>
+    </head>
+    <body>
+        <h1>jQuery is loaded before UploadCare</h1>
+        <ul class="tests">
+            <li id="loaded">jQuery is loaded to UploadCare</li>
+            <li id="global">jQuery is taken from global</li>
+        </ul>
+        <script>
+            (function() {
+                var test = function (id, check) {
+                    var result = document.getElementById(id);
+                    result.className = check ? 'ok' : 'error';
+                };
+
+                UploadCare.ready(function() {
+                    test('loaded', typeof(UploadCare.jQuery) == 'function');
+                    test('global', UploadCare.jQuery === jQuery);
+                });
+            })();
+        </script>
+    </body>
+</html>
