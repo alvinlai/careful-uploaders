@@ -66,3 +66,42 @@ describe 'UploadCare', ->
       another = jasmine.createSpy()
       UploadCare.ready(another)
       expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
+
+  describe '.upload', ->
+    $ = UploadCare.jQuery
+    originUrl = UploadCare.uploadUrl
+    beforeEach ->
+      UploadCare.uploadUrl = location.href + 'iframe'
+    afterEach ->
+      UploadCare.uploadUrl = originUrl
+
+    it 'should upload file to server', ->
+      UploadCare.publicKey = 'ABCDEF'
+      spyOn(UploadCare, '_uuid').andReturn('GENERATED-UUID')
+
+      file = $('<input type="file" name="uploaded" />')
+      hidden = $('<input type="hidden" />')
+
+      start = jasmine.createSpy()
+      success = jasmine.createSpy()
+      hidden.bind('uploadcare.start', start).
+             bind('uploadcare.success', success)
+
+      answer = null
+      hidden.bind 'uploadcare.success', ->
+        $ = UploadCare.jQuery
+        answer = $.parseJSON($('iframe:last').contents().text())
+
+      UploadCare.upload(file, hidden, { widget: 'test' }).success(success)
+
+      waitsFor -> answer != null
+      runs ->
+        expect(start).toHaveBeenCalled()
+        expect(success.callCount).toEqual(2)
+
+        expect(answer.UPLOADCARE_FILE_ID).toEqual('GENERATED-UUID')
+        expect(answer.UPLOADCARE_FILE_ID).toEqual(hidden.val())
+
+        expect(answer.UPLOADCARE_PUB_KEY).toEqual(UploadCare.publicKey)
+        expect(answer.UPLOADCARE_WIDGET).toEqual('test')
+        expect(answer.uploaded).toBeDefined()

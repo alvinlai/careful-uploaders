@@ -72,6 +72,16 @@ task('test', [], function () {
         res.send(fs.readFileSync('node_modules/jquery/dist/node-jquery.js'));
     });
 
+    var formidable = require('formidable');
+    server.app.post('/iframe', function (req, res) {
+        var form = new formidable.IncomingForm();
+        form.parse(req, function (error, fields, files) {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.write(JSON.stringify(fields));
+            res.end();
+        });
+    });
+
     server.start();
 });
 
