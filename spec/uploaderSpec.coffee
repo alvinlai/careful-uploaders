@@ -79,17 +79,16 @@ describe 'UploadCare', ->
       UploadCare.publicKey = 'ABCDEF'
       spyOn(UploadCare, '_uuid').andReturn('GENERATED-UUID')
 
-      file = $('<input type="file" name="uploaded" />')
+      file   = $('<input type="file" name="uploaded" />')
       hidden = $('<input type="hidden" />')
 
-      start = jasmine.createSpy()
+      start   = jasmine.createSpy()
       success = jasmine.createSpy()
       hidden.bind('uploadcare.start', start).
              bind('uploadcare.success', success)
 
       answer = null
       hidden.bind 'uploadcare.success', ->
-        $ = UploadCare.jQuery
         answer = $.parseJSON($('iframe:last').contents().text())
 
       UploadCare.upload(file, hidden, { widget: 'test' }).success(success)
@@ -105,3 +104,19 @@ describe 'UploadCare', ->
         expect(answer.UPLOADCARE_PUB_KEY).toEqual(UploadCare.publicKey)
         expect(answer.UPLOADCARE_WIDGET).toEqual('test')
         expect(answer.uploaded).toBeDefined()
+
+    it 'should should take public key from hidden input', ->
+      UploadCare.publicKey = 'ABCDEF'
+
+      file   = $('<input type="file" name="uploaded" />')
+      hidden = $('<input type="hidden" data-public-key="FEDCBA" />')
+
+      answer = null
+      hidden.bind 'uploadcare.success', ->
+        answer = $.parseJSON($('iframe:last').contents().text())
+
+      UploadCare.upload(file, hidden)
+
+      waitsFor -> answer != null
+      runs ->
+        expect(answer.UPLOADCARE_PUB_KEY).toEqual('FEDCBA')
