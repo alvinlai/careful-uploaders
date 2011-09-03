@@ -1,7 +1,7 @@
 describe 'UploadCare.Plain', ->
   $ = UploadCare.jQuery
 
-  form = hidden = null
+  form = hidden = file = null
   beforeEach ->
     form   = $('<form />')
     hidden = $('<input type="hidden" role="uploadcare-plain-uploader" />')
@@ -39,3 +39,17 @@ describe 'UploadCare.Plain', ->
 
       expect(enlived.length).toEqual(1)
       expect(enlived[0]).toEqual(hidden[0])
+
+  describe 'file input', ->
+    beforeEach ->
+      UploadCare.Plain.init(form)
+      file = form.find(':file')
+
+    it 'should add file input after hidden input', ->
+      expect(file.length).toEqual(1)
+      expect(hidden.next()[0]).toEqual(file[0])
+
+    it 'should upload file on file change', ->
+      spyOn(UploadCare, 'upload').andReturn({ complete: -> })
+      file.change()
+      expect(UploadCare.upload).toHaveBeenCalled()
