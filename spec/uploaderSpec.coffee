@@ -1,4 +1,5 @@
 describe 'UploadCare', ->
+  $ = UploadCare.jQuery
 
   describe '._uuid', ->
 
@@ -68,7 +69,6 @@ describe 'UploadCare', ->
       expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
 
   describe '.upload', ->
-    $ = UploadCare.jQuery
     originUrl = UploadCare.uploadUrl
     beforeEach ->
       UploadCare.uploadUrl = location.href + 'iframe'
