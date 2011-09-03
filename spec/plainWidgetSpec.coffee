@@ -1,6 +1,12 @@
 describe 'UploadCare.Plain', ->
   $ = UploadCare.jQuery
 
+  form = hidden = null
+  beforeEach ->
+    form   = $('<form />')
+    hidden = $('<input type="hidden" role="uploadcare-plain-uploader" />')
+    form.append('<input />').append(hidden)
+
   describe 'init argument', ->
     enlived = null
     origin  = UploadCare.Plain.enlive
@@ -14,33 +20,22 @@ describe 'UploadCare.Plain', ->
       UploadCare.Plain.enlive = origin
 
     it 'should understand DOM input', ->
-      input = document.createElement('input')
-      UploadCare.Plain.init(input)
-      expect(enlived).toEqual($(input))
+      UploadCare.Plain.init(hidden[0])
+      expect(enlived.length).toEqual(1)
+      expect(enlived[0]).toEqual(hidden[0])
 
     it 'should understand jQuery input', ->
-      input = $('<input />')
-      UploadCare.Plain.init(input)
-      expect(enlived).toEqual(input)
+      UploadCare.Plain.init(hidden)
+      expect(enlived).toEqual(hidden)
 
     it 'should find input with specify role in DOM node', ->
-      div    = document.createElement('div')
-      input  = document.createElement('input')
-      common = document.createElement('input')
-      input.setAttribute('role', 'uploadcare-plain-uploader')
-      div.appendChild(input)
-      div.appendChild(common)
-
-      UploadCare.Plain.init(div)
+      UploadCare.Plain.init(form[0])
 
       expect(enlived.length).toEqual(1)
-      expect(enlived[0]).toEqual(input)
+      expect(enlived[0]).toEqual(hidden[0])
 
     it 'should find input with specify role in jQuery node', ->
-      input = $('<input role="uploadcare-plain-uploader" />')
-      div   = $('<div />').append('<input />').append(input)
-
-      UploadCare.Plain.init(div)
+      UploadCare.Plain.init(form)
 
       expect(enlived.length).toEqual(1)
-      expect(enlived[0]).toEqual(input[0])
+      expect(enlived[0]).toEqual(hidden[0])
