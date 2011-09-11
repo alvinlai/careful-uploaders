@@ -16,6 +16,7 @@ describe 'UploadCare.Plain', ->
 
     it 'should add file input after hidden input', ->
       expect(file.length).toEqual(1)
+      expect(file.attr('name')).toEqual('file')
       expect(file.hasClass('uploadcare-uploader')).toBeTruthy()
       expect(hidden.next()[0]).toEqual(file[0])
 
@@ -61,7 +62,13 @@ describe 'UploadCare.Plain', ->
     it 'should send widget name', ->
       file.change()
       expect(UploadCare.upload).toHaveBeenCalledWith(
-        jasmine.any(Object), { widget: 'plain' })
+        jasmine.any(Object), { meduim: 'plain' })
+
+    it 'should send custom widget name', ->
+      hidden.data('meduim', 'custom')
+      file.change()
+      expect(UploadCare.upload).toHaveBeenCalledWith(
+        jasmine.any(Object), { meduim: 'custom' })
 
     it 'should add loading class to specify wrapper', ->
       file.change()

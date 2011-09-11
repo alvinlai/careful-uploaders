@@ -114,7 +114,7 @@ describe 'UploadCare', ->
       success = jasmine.createSpy()
 
       answer = null
-      UploadCare.upload(file, { widget: 'test' }).
+      UploadCare.upload(file, { meduim: 'test' }).
         success(success).
         success ->
           answer = $.parseJSON($('iframe:last').contents().text())
@@ -124,7 +124,7 @@ describe 'UploadCare', ->
         expect(success).toHaveBeenCalledWith(answer.UPLOADCARE_FILE_ID)
         expect(answer.UPLOADCARE_FILE_ID).toEqual('GENERATED-UUID')
         expect(answer.UPLOADCARE_PUB_KEY).toEqual(UploadCare.publicKey)
-        expect(answer.UPLOADCARE_WIDGET).toEqual('test')
+        expect(answer.UPLOADCARE_MEDIUM).toEqual('test')
         expect(answer.uploaded).toBeDefined()
 
     it 'should get public key from options', ->
