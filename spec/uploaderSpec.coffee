@@ -26,13 +26,13 @@ describe 'UploadCare', ->
     afterEach ->
       UploadCare._jQueryMinVersion = originVersion
 
-    it 'should get jQuery, when it is correct', ->
+    it 'should use jQuery, when it is correct', ->
       UploadCare._checkJQuery({ fn: { jquery: '1.5.0' } }, noCallback, version)
       expect(noCallback).not.toHaveBeenCalled()
       expect(version).not.toHaveBeenCalled()
       expect(UploadCare._getJQuery).toHaveBeenCalled()
 
-    it 'should get jQuery, when it has next version', ->
+    it 'should use jQuery, when it has next version', ->
       UploadCare._checkJQuery({ fn: { jquery: '2.0.0' } }, noCallback, version)
       expect(noCallback).not.toHaveBeenCalled()
       expect(version).not.toHaveBeenCalled()
@@ -52,7 +52,7 @@ describe 'UploadCare', ->
 
   describe '.ready', ->
 
-    it 'should call callback, when UploadCare be initialized', ->
+    it 'should call callback, when UploadCare is already initialized', ->
       UploadCare.initialized = false
       this.after -> UploadCare.initialized = true
 
