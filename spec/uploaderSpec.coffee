@@ -79,43 +79,30 @@ describe 'UploadCare', ->
       UploadCare.publicKey = 'ABCDEF'
       spyOn(UploadCare, '_uuid').andReturn('GENERATED-UUID')
 
-      file   = $('<input type="file" name="uploaded" />')
-      hidden = $('<input type="hidden" />')
-
-      start   = jasmine.createSpy()
+      file    = $('<input type="file" name="uploaded" />')
       success = jasmine.createSpy()
-      hidden.bind('uploadcare.start', start).
-             bind('uploadcare.success', success)
 
       answer = null
-      hidden.bind 'uploadcare.success', ->
-        answer = $.parseJSON($('iframe:last').contents().text())
-
-      UploadCare.upload(file, hidden, { widget: 'test' }).success(success)
+      UploadCare.upload(file, { widget: 'test' }).
+        success(success).
+        success ->
+          answer = $.parseJSON($('iframe:last').contents().text())
 
       waitsFor -> answer != null
       runs ->
-        expect(start).toHaveBeenCalled()
-        expect(success.callCount).toEqual(2)
-
+        expect(success).toHaveBeenCalledWith(answer.UPLOADCARE_FILE_ID)
         expect(answer.UPLOADCARE_FILE_ID).toEqual('GENERATED-UUID')
-        expect(answer.UPLOADCARE_FILE_ID).toEqual(hidden.val())
-
         expect(answer.UPLOADCARE_PUB_KEY).toEqual(UploadCare.publicKey)
         expect(answer.UPLOADCARE_WIDGET).toEqual('test')
         expect(answer.uploaded).toBeDefined()
 
-    it 'should should take public key from hidden input', ->
+    it 'should get public key from options', ->
       UploadCare.publicKey = 'ABCDEF'
-
-      file   = $('<input type="file" name="uploaded" />')
-      hidden = $('<input type="hidden" data-public-key="FEDCBA" />')
+      file = $('<input type="file" name="uploaded" />')
 
       answer = null
-      hidden.bind 'uploadcare.success', ->
+      UploadCare.upload(file, { publicKey: 'FEDCBA' }).success ->
         answer = $.parseJSON($('iframe:last').contents().text())
-
-      UploadCare.upload(file, hidden)
 
       waitsFor -> answer != null
       runs ->

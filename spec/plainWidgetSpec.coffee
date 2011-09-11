@@ -52,7 +52,7 @@ describe 'UploadCare.Plain', ->
       expect(hidden.next()[0]).toEqual(file[0])
 
     it 'should upload file on file change', ->
-      spyOn(UploadCare, 'upload').andReturn({ done: -> })
+      spyOn(UploadCare, 'upload').andReturn(done: ( -> ), fail: ( -> ))
       file.change()
       expect(UploadCare.upload).toHaveBeenCalled()
 
@@ -66,10 +66,34 @@ describe 'UploadCare.Plain', ->
       uploading = $.Deferred()
       spyOn(UploadCare, 'upload').andReturn(uploading.promise())
 
+    it 'should set file ID to hidden input', ->
+      file.change()
+      uploading.resolve('12345')
+      expect(hidden.val()).toEqual('12345')
+
+    it 'should trigger events on hidden input', ->
+      start    = jasmine.createSpy()
+      success  = jasmine.createSpy()
+      complete = jasmine.createSpy()
+
+      hidden.bind('uploadcare.start',    start)
+      hidden.bind('uploadcare.success',  success)
+      hidden.bind('uploadcare.complete', complete)
+
+      file.change()
+      expect(start).toHaveBeenCalled()
+
+      expect(success).not.toHaveBeenCalled()
+      expect(complete).not.toHaveBeenCalled()
+
+      uploading.resolve()
+      expect(success).toHaveBeenCalled()
+      expect(complete).toHaveBeenCalled()
+
     it 'should send widget name', ->
       file.change()
       expect(UploadCare.upload).toHaveBeenCalledWith(
-        jasmine.any(Object), $(hidden[0]), { widget: 'plain' })
+        jasmine.any(Object), { widget: 'plain' })
 
     it 'should add loading class to specify wrapper', ->
       file.change()
