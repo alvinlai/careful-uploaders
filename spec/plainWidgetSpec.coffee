@@ -44,9 +44,9 @@ describe 'UploadCare.Plain', ->
       success  = jasmine.createSpy()
       complete = jasmine.createSpy()
 
-      hidden.bind('uploadcare.start',    start)
-      hidden.bind('uploadcare.success',  success)
-      hidden.bind('uploadcare.complete', complete)
+      hidden.bind('uploadcare-start',    start)
+      hidden.bind('uploadcare-success',  success)
+      hidden.bind('uploadcare-complete', complete)
 
       file.change()
       expect(start).toHaveBeenCalled()
