@@ -3,17 +3,14 @@ var path   = require('path');
 var uglify = require('uglify-js');
 var wrench = require('wrench');
 
-var widgets = {
-    plain: ['uploader.js', 'plain-widget.js']
-}
-
 desc('Concatenate and compress widgets files.');
 task('build', [], function () {
     if ( !path.existsSync('pkg/') ) {
         fs.mkdirSync('pkg/', 0755);
     }
-    for (widget in widgets) {
-        var js = widgets[widget].reduce(function(all, file) {
+    bundles = JSON.parse(fs.readFileSync('bundles.json'));
+    for (bundle in bundles) {
+        var js = bundles[bundle].reduce(function (all, file) {
             return all + fs.readFileSync('lib/' + file);
         }, '');
 
@@ -22,7 +19,7 @@ task('build', [], function () {
         ast = uglify.uglify.ast_squeeze(ast);
         js  = uglify.uglify.gen_code(ast);
 
-        var io = fs.openSync('pkg/' + widget + '.js', 'w+');
+        var io = fs.openSync('pkg/' + bundle + '.js', 'w+');
         fs.writeSync(io, js);
         fs.closeSync(io);
     }
@@ -48,20 +45,20 @@ task('test', [], function () {
 
     var srcs = ['/jquery.js',
                 '/lib/uploader.js',
-                '/lib/plain-widget.js'];
+                '/lib/plain/plain-widget.js'];
 
     server.app.remove('/', 'get');
     server.app.get('/', function (req, res)  {
         var specs = fs.readdirSync('spec/').
             filter(function (file) {
-                return file.match(/(.js|.coffee)$/)
+                return file.match(/(.js|.coffee)$/);
             }).
             map(function (file) {
                 return '/spec/' + file;
             })
         res.render('index.jade', {
             locals: {
-                srcs: srcs,
+                srcs:  srcs,
                 specs: specs,
                 externals: []
             },

@@ -1,0 +1,6 @@
+{
+    "uploader":     ["uploader.js"],
+    "plain-widget": ["uploader.js",
+                     "plain/plain-widget.js",
+                     "plain/plain-init.js"]
+}
