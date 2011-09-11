@@ -4,7 +4,7 @@ describe 'UploadCare.Plain', ->
   form = wrapper = hidden = file = null
   beforeEach ->
     form    = $('<form />')
-    wrapper = $('<div role="uploadcare-plain-container" />')
+    wrapper = $('<div role="uploadcare-container" />')
     hidden  = $('<input type="hidden" role="uploadcare-plain-uploader" />')
     form.append(wrapper)
     wrapper.append('<input />').append(hidden)
@@ -16,6 +16,7 @@ describe 'UploadCare.Plain', ->
 
     it 'should add file input after hidden input', ->
       expect(file.length).toEqual(1)
+      expect(file.hasClass('uploadcare-uploader')).toBeTruthy()
       expect(hidden.next()[0]).toEqual(file[0])
 
     it 'should upload file on file change', ->
@@ -64,20 +65,20 @@ describe 'UploadCare.Plain', ->
 
     it 'should add loading class to specify wrapper', ->
       file.change()
-      expect(wrapper.hasClass('uploadcare-plain-loading')).toBeTruthy()
-      expect(   form.hasClass('uploadcare-plain-loading')).toBeFalsy()
+      expect(wrapper.hasClass('uploadcare-loading')).toBeTruthy()
+      expect(   form.hasClass('uploadcare-loading')).toBeFalsy()
 
       uploading.resolve()
-      expect(wrapper.hasClass('uploadcare-plain-loading')).toBeFalsy()
+      expect(wrapper.hasClass('uploadcare-loading')).toBeFalsy()
 
     it 'should without specify wrapper add loading class to form', ->
       form.html(wrapper.html())
       UploadCare.Plain.init(form)
       form.find(':file').change()
-      expect(wrapper.hasClass('uploadcare-plain-loading')).toBeFalsy()
-      expect(   form.hasClass('uploadcare-plain-loading')).toBeTruthy()
+      expect(wrapper.hasClass('uploadcare-loading')).toBeFalsy()
+      expect(   form.hasClass('uploadcare-loading')).toBeTruthy()
 
-    it 'should block form submit, while upload', ->
+    it 'should block form submit during upload', ->
       file.change()
       prevented = null
       form.submit (e) ->
