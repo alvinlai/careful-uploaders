@@ -68,10 +68,41 @@ describe 'UploadCare', ->
       UploadCare.ready(another)
       expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
 
+  describe '._widgetInit', ->
+    form  = $('<form />')
+    input = $('<input type="hidden" role="test-role" />')
+    form.append(input)
+
+    enlived = null
+    widget  =
+      init:   UploadCare._widgetInit('test-role')
+      enlive: (el) -> enlived.push(el)
+
+    beforeEach ->
+      enlived = []
+
+    it 'should understand DOM input', ->
+      widget.init(input[0])
+      expect(enlived).toEqual([input[0]])
+
+    it 'should understand jQuery input', ->
+      widget.init(input)
+      expect(enlived).toEqual([input[0]])
+
+    it 'should find input with specify role in DOM node', ->
+      widget.init(form[0])
+      expect(enlived).toEqual([input[0]])
+
+    it 'should find input with specify role in jQuery node', ->
+      widget.init(form)
+      expect(enlived).toEqual([input[0]])
+
   describe '.upload', ->
     originUrl = UploadCare.uploadUrl
+
     beforeEach ->
       UploadCare.uploadUrl = location.href + 'iframe'
+
     afterEach ->
       UploadCare.uploadUrl = originUrl
 
