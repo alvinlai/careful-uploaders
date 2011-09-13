@@ -2,5 +2,10 @@
     "uploader":     ["uploader.js"],
     "plain-widget": ["uploader.js",
                      "plain/plain-widget.js",
-                     "plain/plain-init.js"]
+                     "plain/plain-init.js"],
+    "line-widget":  ["uploader.js",
+                     "plain/plain-widget.js",
+                     "line/line-widget.js",
+                     "line/i18n",
+                     "line/line-init.js"]
 }

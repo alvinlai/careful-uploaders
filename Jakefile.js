@@ -8,9 +8,9 @@ task('build', [], function () {
     if ( !path.existsSync('pkg/') ) {
         fs.mkdirSync('pkg/', 0755);
     }
-    bundles = JSON.parse(fs.readFileSync('bundles.json'));
-    for (bundle in bundles) {
-        var js = bundles[bundle].reduce(function (all, file) {
+
+    var pack = function (result, files) {
+        var js = files.reduce(function (all, file) {
             return all + fs.readFileSync('lib/' + file);
         }, '');
 
@@ -19,9 +19,31 @@ task('build', [], function () {
         ast = uglify.uglify.ast_squeeze(ast);
         js  = uglify.uglify.gen_code(ast);
 
-        var io = fs.openSync('pkg/' + bundle + '.js', 'w+');
-        fs.writeSync(io, js);
-        fs.closeSync(io);
+        fs.writeFileSync('pkg/' + result + '.js', js);
+    };
+
+    var bundles = JSON.parse(fs.readFileSync('bundles.json'));
+    for (var bundle in bundles) {
+        var files   = bundles[bundle];
+        var i18n    = null;
+        var i18nDir = null;
+
+        files.forEach(function (path, i) {
+            if ( path.match(/i18n$/) ) {
+                i18n    = i;
+                i18nDir = path;
+            }
+        });
+
+        if ( i18nDir ) {
+            fs.readdirSync('lib/' + i18nDir).forEach(function (translation) {
+                var locale = translation.replace('.js', '');
+                files[i18n] = path.join(i18nDir, translation);
+                pack(bundle + '.' + locale, files);
+            });
+        } else {
+            pack(bundle, files);
+        }
     }
 });
 

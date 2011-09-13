@@ -50,24 +50,6 @@ describe 'UploadCare', ->
       expect(version).toHaveBeenCalled()
       expect(UploadCare._getJQuery).not.toHaveBeenCalled()
 
-  describe '.ready', ->
-
-    it 'should call callback, when UploadCare is already initialized', ->
-      UploadCare.initialized = false
-      this.after -> UploadCare.initialized = true
-
-      callback = jasmine.createSpy()
-      UploadCare.ready(callback)
-      expect(callback).not.toHaveBeenCalled()
-
-      UploadCare._callReadyCallbacks()
-      expect(callback).toHaveBeenCalledWith(UploadCare.jQuery)
-      expect(UploadCare.initialized).toBeTruthy()
-
-      another = jasmine.createSpy()
-      UploadCare.ready(another)
-      expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
-
   describe '._widgetInit', ->
     form  = $('<form />')
     input = $('<input type="hidden" role="test-role" />')
@@ -96,6 +78,35 @@ describe 'UploadCare', ->
     it 'should find input with specify role in jQuery node', ->
       widget.init(form)
       expect(enlived).toEqual([input[0]])
+
+  describe '._translate', ->
+
+    it 'should add translation', ->
+      widget   = { messages: { } }
+      messages = widget.messages
+
+      UploadCare._translate(widget, 'en', one: 1)
+
+      expect(widget.messages).toBe(messages)
+      expect(widget.messages).toEqual({ locale: 'en', one: 1 })
+
+  describe '.ready', ->
+
+    it 'should call callback, when UploadCare is already initialized', ->
+      UploadCare.initialized = false
+      this.after -> UploadCare.initialized = true
+
+      callback = jasmine.createSpy()
+      UploadCare.ready(callback)
+      expect(callback).not.toHaveBeenCalled()
+
+      UploadCare._callReadyCallbacks()
+      expect(callback).toHaveBeenCalledWith(UploadCare.jQuery)
+      expect(UploadCare.initialized).toBeTruthy()
+
+      another = jasmine.createSpy()
+      UploadCare.ready(another)
+      expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
 
   describe '.upload', ->
     originUrl = UploadCare.uploadUrl
