@@ -1,5 +1,6 @@
 fs     = require('fs')
 path   = require('path')
+child  = require('child_process')
 uglify = require('uglify-js')
 wrench = require('wrench')
 
@@ -16,21 +17,29 @@ task 'build', 'Concatenate and compress widgets files', ->
 
     fs.writeFileSync("pkg/#{bundleName}.js", js)
 
-  bundles = JSON.parse(fs.readFileSync('bundles.json'))
-  for bundle, files of bundles
-    i18n = false
-    translations = null
+  child.exec 'bash -c "compass compile"', (error) ->
+    if error
+      process.stderr.write(error.message)
+      process.exit(1)
 
-    for filepath, i in files
-      [i18n, translations] = [i, filepath] if filepath.match /i18n$/
+    bundles = JSON.parse(fs.readFileSync('bundles.json'))
+    for bundle, files of bundles
+      i18n = false
+      translations = null
 
-    if i18n
-      for translation in fs.readdirSync("lib/#{translations}")
-        locale = translation.replace('.js', '')
-        files[i18n] = path.join(translations, translation)
-        pack("#{bundle}.#{locale}", files)
-    else
-      pack(bundle, files)
+      for filepath, i in files
+        [i18n, translations] = [i, filepath] if filepath.match /i18n$/
+
+      if i18n
+        for translation in fs.readdirSync("lib/#{translations}")
+          locale = translation.replace('.js', '')
+          files[i18n] = path.join(translations, translation)
+          pack("#{bundle}.#{locale}", files)
+      else
+        pack(bundle, files)
+
+      for file in files
+        fs.unlinkSync("lib/#{file}") if file.match(/-style\.js$/)
 
 task 'clobber', 'Delete all generated files', ->
   wrench.rmdirSyncRecursive('pkg/') if path.existsSync('pkg/')

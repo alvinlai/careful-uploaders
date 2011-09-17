@@ -7,5 +7,6 @@
                      "plain/plain-widget.js",
                      "line/line-widget.js",
                      "line/i18n",
+                     "line/line-style.js",
                      "line/line-init.js"]
 }
