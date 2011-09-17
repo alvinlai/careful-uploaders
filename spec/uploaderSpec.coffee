@@ -52,7 +52,7 @@ describe 'UploadCare', ->
 
   describe '._widgetInit', ->
     form  = $('<form />')
-    input = $('<input type="hidden" role="test-role" />')
+    input = $('<input type="hidden" role="test-role abc" />')
     form.append(input)
 
     enlived = null

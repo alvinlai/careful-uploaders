@@ -4,8 +4,8 @@ describe 'UploadCare.Plain', ->
   form = wrapper = hidden = file = uploading = null
   beforeEach ->
     form    = $('<form />')
-    wrapper = $('<div role="uploadcare-container" />').appendTo(form)
-    hidden  = $('<input type="hidden" role="uploadcare-plain-uploader" />')
+    wrapper = $('<div role="uploadcare-container abc" />').appendTo(form)
+    hidden  = $('<input type="hidden" role="uploadcare-plain-uploader cba" />')
     wrapper.append('<input />').append(hidden)
 
     uploading = $.Deferred()
