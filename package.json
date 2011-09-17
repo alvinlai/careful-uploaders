@@ -2,6 +2,7 @@
   "name": "careful-uploaders",
   "version": "0.0.1",
   "devDependencies": {
+    "coffee-script":  "1.1.2",
     "uglify-js":      "1.0.6",
     "wrench":         "1.1.0",
     "jquery":         "1.6.2",
