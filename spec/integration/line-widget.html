@@ -17,7 +17,7 @@
                 file.remove();
 
                 var deferred = this.jQuery.Deferred();
-                if ( $('#error').prop('checked') ) {
+                if ( UploadCare.jQuery('#error').prop('checked') ) {
                     setTimeout(function () {
                         deferred.reject();
                     }, 800);
