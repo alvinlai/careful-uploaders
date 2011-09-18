@@ -1,1 +1,83 @@
-.uploadcare-line-uploader
+@import 'compass/css3'
+
+@function image($name)
+  @return "line/images/#{$name}.png"
+
+@mixin image-size($name)
+  width: image-width(image($name))
+  height: image-height(image($name))
+
+@mixin sprite($name)
+  +image-size($name)
+  background: inline-image(image($name))
+
+.uploadcare-line
+  &-uploader
+    width: 293px
+    height: 30px
+    line-height: 30px
+    +border-radius(2px)
+    border: 1px solid #d8d8d8
+    background: #f6f6f6
+    +background( linear-gradient(#fcfcfc, #ececec) )
+    color: #333
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif
+    font-size: 13px
+    font-weight: bold
+    +box-shadow(rgba(0, 0, 0, 0.08) 0 1px 3px)
+  &-thumb
+    float: left
+    width: 30px
+    height: 30px
+    border-right: 1px solid #d8d8d8
+    margin-right: 9px
+    position: relative
+  &-thumb-empty
+    position: absolute
+    top: 3px
+    left: 3px
+    +sprite(empty)
+  &-buttons
+    float: right
+    a
+      display: block
+      float: left
+      height: 22px
+      line-height: 22px
+      margin: 3px 3px 0 0
+      padding: 0 7px
+      border: 1px solid #abcddc
+      border-color: #abcddc #a0c3d3 #92b8c9 #a0c3d3
+      text-decoration: none
+      color: #7dadc1
+      text-shadow: white 0 1px 1px
+      font-size: 12px
+      background: #e6f5fb
+      +background( linear-gradient(#f4fbfe, #d5eef8) )
+      +border-radius(2px)
+      +box-shadow(rgba(0, 0, 0, 0.1) 0 1px 1px)
+    .uploadcare-line-icon
+      position: absolute
+      left: 7px
+    .uploadcare-line-computer
+      padding-left: image-width(image(computer)) + 7px + 5px
+      position: relative
+      .uploadcare-line-icon
+        top: 5px
+        +sprite(computer)
+    .uploadcare-line-web
+      padding-left: image-width(image(web)) + 7px + 5px
+      position: relative
+      .uploadcare-line-icon
+        top: 2px
+        +sprite(web)
+  &-file-input
+    overflow: hidden
+    input
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      height: 100%
+      +opacity(0)
+      cursor: pointer

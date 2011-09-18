@@ -1,26 +1,39 @@
 fs     = require('fs')
+sys    = require('sys')
 path   = require('path')
 child  = require('child_process')
+watch  = require('watch')
 uglify = require('uglify-js')
 wrench = require('wrench')
 
-task 'build', 'Concatenate and compress widgets files', ->
+build = (development) ->
   fs.mkdirSync('pkg/', 0755) unless path.existsSync('pkg/')
 
   pack = (bundleName, files) ->
-    js = files.reduce ( (all, i) -> all + fs.readFileSync("lib/#{i}") ), ''
+    js = files.reduce ( (all, i) -> all + fs.readFileSync(i) ), ''
 
-    ast = uglify.parser.parse(js)
-    ast = uglify.uglify.ast_mangle(ast)
-    ast = uglify.uglify.ast_squeeze(ast)
-    js  = uglify.uglify.gen_code(ast)
+    unless development
+      ast = uglify.parser.parse(js)
+      ast = uglify.uglify.ast_mangle(ast)
+      ast = uglify.uglify.ast_squeeze(ast)
+      js  = uglify.uglify.gen_code(ast)
 
     fs.writeFileSync("pkg/#{bundleName}.js", js)
 
-  child.exec 'bash -c "compass compile"', (error) ->
+  template = (htmlFile, jsFile) ->
+    dir  = path.basename(path.dirname(htmlFile))
+    name = dir[0].toUpperCase() + dir[1..-1]
+    js   = "UploadCare.#{name}.html = '"
+    js  += fs.readFileSync(htmlFile).toString().replace(/\s+/g, ' ')
+    js  += "';"
+    fs.writeFileSync(jsFile, js)
+
+  child.exec 'bash -c "compass compile"', (error, message) ->
     if error
       process.stderr.write(error.message)
-      process.exit(1)
+      process.exit(1) unless development
+    if development
+      sys.puts(message)
 
     bundles = JSON.parse(fs.readFileSync('bundles.json'))
     for bundle, files of bundles
@@ -28,18 +41,30 @@ task 'build', 'Concatenate and compress widgets files', ->
       translations = null
 
       for filepath, i in files
-        [i18n, translations] = [i, filepath] if filepath.match /i18n$/
+        if filepath.match /i18n$/
+          [i18n, translations] = [i, "lib/#{filepath}"]
+        else if filepath.match /\.sass$/
+          filepath = filepath.replace(/sass$/, 'js')
+          files[i] = "tmp/#{filepath}"
+        else if filepath.match /\.html$/
+          jsPath = filepath.replace(/html$/, 'js')
+          files[i] = "tmp/#{jsPath}"
+          template("lib/#{filepath}", files[i])
+        else
+          files[i] = "lib/#{filepath}"
 
       if i18n
-        for translation in fs.readdirSync("lib/#{translations}")
+        for translation in fs.readdirSync(translations)
           locale = translation.replace('.js', '')
           files[i18n] = path.join(translations, translation)
           pack("#{bundle}.#{locale}", files)
       else
         pack(bundle, files)
 
-      for file in files
-        fs.unlinkSync("lib/#{file}") if file.match(/-style\.js$/)
+    wrench.rmdirSyncRecursive('tmp/') unless development
+
+task 'build', 'Concatenate and compress widgets files', ->
+  build()
 
 task 'clobber', 'Delete all generated files', ->
   wrench.rmdirSyncRecursive('pkg/') if path.existsSync('pkg/')
@@ -75,3 +100,9 @@ task 'test', 'Run specs server', ->
       res.end()
 
   server.start()
+
+task 'watch', 'Rebuild widgets after any file changes', ->
+  build('development')
+  watch.watchTree 'lib/', ->
+    console.log('Rebuild')
+    build('development')
