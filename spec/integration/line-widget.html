@@ -12,9 +12,7 @@
         </script>
         <script>
             UploadCare.upload = function (file, options) {
-                var next = file.clone(true);
-                next.insertBefore(file);
-                file.remove();
+                file.replaceWith(file.clone(true));
 
                 var deferred = this.jQuery.Deferred();
                 if ( UploadCare.jQuery('#error').prop('checked') ) {
