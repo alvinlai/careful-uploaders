@@ -8,7 +8,25 @@
             var lang = (location.hash || '#en').substr(1);
             var src  = './../../pkg/line-widget.' + lang + '.js';
             document.write('<script src="' + src + '" ' +
-                                   'data-public-key="ABCDEF"><' + '/script>')
+                                   'data-public-key="ABCDEF"><' + '/script>');
+        </script>
+        <script>
+            UploadCare.upload = function (file, options) {
+                var next = file.clone();
+                next.insertBefore(file);
+                file.remove();
+
+                var deferred = this.jQuery.Deferred();
+                setTimeout(function () {
+                    deferred.resolve();
+                }, 5000);
+
+                var promise      = deferred.promise();
+		        promise.success  = promise.done;
+		        promise.error    = promise.fail;
+		        promise.complete = promise.done;
+                return promise;
+            };
         </script>
     </head>
     <body>
