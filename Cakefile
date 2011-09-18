@@ -1,6 +1,7 @@
 fs     = require('fs')
 sys    = require('sys')
 path   = require('path')
+haml   = require('haml')
 child  = require('child_process')
 watch  = require('watch')
 uglify = require('uglify-js')
@@ -20,11 +21,12 @@ build = (development) ->
 
     fs.writeFileSync("pkg/#{bundleName}.js", js)
 
-  template = (htmlFile, jsFile) ->
-    dir  = path.basename(path.dirname(htmlFile))
+  template = (hamlFile, jsFile) ->
+    dir  = path.basename(path.dirname(hamlFile))
     name = dir[0].toUpperCase() + dir[1..-1]
+    html = haml(fs.readFileSync(hamlFile).toString())()
     js   = "UploadCare.#{name}.html = '"
-    js  += fs.readFileSync(htmlFile).toString().replace(/\s+/g, ' ')
+    js  += html.toString().replace(/\s+/g, ' ')
     js  += "';"
     fs.writeFileSync(jsFile, js)
 
@@ -46,8 +48,8 @@ build = (development) ->
         else if filepath.match /\.sass$/
           filepath = filepath.replace(/sass$/, 'js')
           files[i] = "tmp/#{filepath}"
-        else if filepath.match /\.html$/
-          jsPath = filepath.replace(/html$/, 'js')
+        else if filepath.match /\.haml$/
+          jsPath = filepath.replace(/haml$/, 'js')
           files[i] = "tmp/#{jsPath}"
           template("lib/#{filepath}", files[i])
         else

@@ -8,6 +8,7 @@
     "jquery":         "1.6.2",
     "jasmine-runner": "0.2.9",
     "formidable":     "1.0.2",
-    "watch":          "0.3.2"
+    "watch":          "0.3.2",
+    "haml":           "0.4.2"
   }
 }

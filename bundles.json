@@ -7,7 +7,7 @@
                      "plain/plain-widget.js",
                      "line/line-widget.js",
                      "line/i18n",
-                     "line/line-template.html",
+                     "line/line-template.haml",
                      "line/line-style.sass",
                      "line/line-init.js"]
 }

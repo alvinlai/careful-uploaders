@@ -1,0 +1,27 @@
+.uploadcare-line-uploader
+  %style{ scoped: true } {style}
+  .uploadcare-line-cropper
+
+    - 'Upload from'
+    .uploadcare-line-upload
+      .uploadcare-line-thumb
+        .uploadcare-line-thumb-empty
+      .uploadcare-line-buttons
+        .uploadcare-line-file-input
+          {file}
+          %a.uploadcare-line-computer( href="#" )
+            .uploadcare-line-icon
+            {t computer}
+        %a.uploadcare-line-web( href="#" )
+          .uploadcare-line-icon
+          {t web}
+      {t uploadFrom}
+
+    - 'Uploading'
+    .uploadcare-line-uploading
+      .uploadcare-line-thumb
+        .uploadcare-line-thumb-empty
+      %a.uploadcare-line-cancel( href="#" title="{t cancel}" )
+      .uploadcare-line-progress
+        %div
+      {t uploading}
