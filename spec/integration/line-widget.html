@@ -17,21 +17,24 @@
                 file.remove();
 
                 var deferred = this.jQuery.Deferred();
-                setTimeout(function () {
-                    deferred.resolve();
-                }, 5000);
+                if ( $('#error').prop('checked') ) {
+                    setTimeout(function () {
+                        deferred.reject();
+                    }, 800);
+                } else {
+                    setTimeout(function () {
+                        deferred.resolve();
+                    }, 5000);
+                }
 
-                var promise      = deferred.promise();
-		        promise.success  = promise.done;
-		        promise.error    = promise.fail;
-		        promise.complete = promise.done;
-                return promise;
+                return deferred.promise();
             };
         </script>
     </head>
     <body>
         <h1>UploadCare Line Widget</h1>
         <p>Don’t forget to execute <code>node_modules/.bin/cake watch</code></p>
+        <p><label><input type="checkbox" id="error"> Mock error</label></p>
         <input type="hidden" role="uploadcare-line-uploader" />
     </body>
 </html>

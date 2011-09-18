@@ -1,5 +1,12 @@
 .uploadcare-line-uploader
   %style{ scoped: true } {style}
+  - 'Error'
+  .uploadcare-line-error-wrapper
+    .uploadcare-line-error
+      .uploadcare-line-error-cloud
+      .uploadcare-line-error-rain
+      .uploadcare-line-error-text
+      %a.uploadcare-line-error-back( href="#" title="{t back}" )
   .uploadcare-line-cropper
 
     - 'Upload from'
