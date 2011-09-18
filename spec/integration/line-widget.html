@@ -12,7 +12,7 @@
         </script>
         <script>
             UploadCare.upload = function (file, options) {
-                var next = file.clone();
+                var next = file.clone(true);
                 next.insertBefore(file);
                 file.remove();
 
