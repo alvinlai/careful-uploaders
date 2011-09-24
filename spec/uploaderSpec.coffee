@@ -95,11 +95,11 @@ describe 'UploadCare', ->
 
     it 'should create promise object and add aliases', ->
       deferred = $.Deferred()
-      promise  = UploadCare._promise(deferred)
-      expect(promise).toBe(deferred.promise())
+      promise  = UploadCare._promise(deferred, { test: -> 1 })
       expect(promise.error).toBe(promise.fail)
       expect(promise.success).toBe(promise.done)
       expect(promise.complete).toBe(promise.always)
+      expect(promise.test()).toEqual(1)
 
   describe '._params', ->
 
@@ -154,3 +154,77 @@ describe 'UploadCare', ->
         expect(answer.UPLOADCARE_PUB_KEY).toEqual(UploadCare.publicKey)
         expect(answer.UPLOADCARE_MEDIUM).toEqual('test')
         expect(answer.uploaded).toBeDefined()
+
+  describe '.byUrl', ->
+    progressing = starting = null
+    originEvery = UploadCare.byUrl.checkEvery
+
+    beforeEach ->
+      starting    = $.Deferred()
+      progressing = $.Deferred()
+      UploadCare.byUrl.checkEvery = 30
+      spyOn($, 'ajax').andReturn(UploadCare._promise(starting))
+
+    afterEach ->
+      UploadCare.byUrl.checkEvery = originEvery
+      progressing.reject()
+
+    it 'should start file uploading and progress checking', ->
+      spyOn(UploadCare.byUrl, 'progress').
+        andReturn(UploadCare._promise(progressing))
+
+      UploadCare.upload('http://example.com', { meduim: 'test' })
+      expect($.ajax).toHaveBeenCalledWith
+        url:      UploadCare.byUrl.uploadUrl
+        type:     'post'
+        data:
+          UPLOADCARE_PUB_KEY:    UploadCare.publicKey
+          UPLOADCARE_MEDIUM:     'test'
+          UPLOADCARE_SOURCE_URL: 'http://example.com'
+
+      waits 35
+      runs ->
+        expect(UploadCare.byUrl.progress).not.toHaveBeenCalled()
+        starting.resolve(token: '12345')
+
+      waits 65
+      runs ->
+        expect(UploadCare.byUrl.progress.callCount).toEqual(2)
+        expect(UploadCare.byUrl.progress).toHaveBeenCalledWith('12345')
+
+    it 'should check uploading progress', ->
+      spyOn(UploadCare.byUrl, 'progress').andCallFake ->
+        UploadCare._promise(progressing = $.Deferred())
+
+      progress = jasmine.createSpy()
+      success  = jasmine.createSpy()
+      UploadCare.upload('http://example.co').progress(progress).success(success)
+      starting.resolve(token: '12345')
+
+      waits 35
+      runs ->
+        progressing.resolve(status: 'pending', a: 1)
+        expect(success).not.toHaveBeenCalled()
+        expect(progress).toHaveBeenCalledWith(status: 'pending', a: 1)
+
+      waits 35
+      runs ->
+        progressing.resolve(status: 'success', a: 2)
+        expect(success).toHaveBeenCalled()
+        expect(progress).toHaveBeenCalledWith(status: 'success', a: 2)
+
+    it 'should check errors', ->
+      spyOn(UploadCare.byUrl, 'progress').andCallFake ->
+        UploadCare._promise(progressing = $.Deferred())
+
+      progress = jasmine.createSpy()
+      error    = jasmine.createSpy()
+
+      UploadCare.upload('http://example.com').progress(progress).error(error)
+      starting.resolve(token: '12345')
+
+      waits 35
+      runs ->
+        progressing.reject()
+        expect(progress).not.toHaveBeenCalled()
+        expect(error).toHaveBeenCalled()
