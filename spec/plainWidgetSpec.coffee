@@ -7,9 +7,13 @@ describe 'UploadCare.Plain', ->
     wrapper = $('<div role="uploadcare-container abc" />').appendTo(form)
     hidden  = $('<input type="hidden" role="uploadcare-plain-uploader cba" />')
     wrapper.append('<input />').append(hidden)
+    form.hide().appendTo('body')
 
     uploading = $.Deferred()
     spyOn(UploadCare, 'upload').andReturn(uploading.promise())
+
+  afterEach ->
+    form.remove()
 
   describe 'file input', ->
     beforeEach ->
@@ -26,7 +30,48 @@ describe 'UploadCare.Plain', ->
       file.change()
       expect(UploadCare.upload).toHaveBeenCalled()
 
-  describe '.upload', ->
+  describe 'from URL', ->
+    text = submit = null
+
+    describe 'by data attribute', ->
+      beforeEach ->
+        hidden.attr('data-uploadcare-from-url', '#upload_from')
+        text = $('<input type="text" id="upload_from" />').appendTo(form).
+          attr('data-uploadcare-submit', '#submit').val('http://example.com')
+        submit = $('<input type="submit" id="submit" />').appendTo(form)
+        UploadCare.Plain.init(form)
+
+      it 'should upload from URL by submit button', ->
+        submit.click()
+        expect(UploadCare.upload).
+          toHaveBeenCalledWith('http://example.com', meduim : 'plain')
+
+      it 'should upload from URL by Enter', ->
+        e = jQuery.Event('keypress')
+        e.keyCode = '13'
+        text.trigger(e)
+        expect(UploadCare.upload).
+          toHaveBeenCalledWith('http://example.com', meduim : 'plain')
+
+    describe 'by enlive option', ->
+      beforeEach ->
+        text = $('<input type="text" />').val('http://example.c').appendTo(form)
+        submit = $('<input type="submit" />').appendTo(form)
+        UploadCare.Plain.enlive(hidden[0], fromUrl: text, fromUrlSubmit: submit)
+
+      it 'should upload from URL by submit button', ->
+        submit.click()
+        expect(UploadCare.upload).
+          toHaveBeenCalledWith('http://example.c', meduim : 'plain')
+
+      it 'should upload from URL by Enter', ->
+        e = jQuery.Event('keypress')
+        e.keyCode = '13'
+        text.trigger(e)
+        expect(UploadCare.upload).
+          toHaveBeenCalledWith('http://example.c', meduim : 'plain')
+
+  describe '.init', ->
 
     it 'should call enlive', ->
       spyOn(UploadCare.Plain, 'enlive')
