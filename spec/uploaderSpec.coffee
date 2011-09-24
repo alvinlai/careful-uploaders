@@ -1,5 +1,6 @@
 describe 'UploadCare', ->
   $ = UploadCare.jQuery
+  UploadCare.publicKey = 'ABCDEF'
 
   describe '._uuid', ->
 
@@ -90,6 +91,28 @@ describe 'UploadCare', ->
       expect(widget.messages).toBe(messages)
       expect(widget.messages).toEqual({ locale: 'en', one: 1 })
 
+  describe '._promise', ->
+
+    it 'should create promise object and add aliases', ->
+      deferred = $.Deferred()
+      promise  = UploadCare._promise(deferred)
+      expect(promise).toBe(deferred.promise())
+      expect(promise.error).toBe(promise.fail)
+      expect(promise.success).toBe(promise.done)
+      expect(promise.complete).toBe(promise.always)
+
+  describe '._params', ->
+
+    it 'should add global public key', ->
+      expect(UploadCare._params()).toEqual(UPLOADCARE_PUB_KEY: 'ABCDEF')
+
+    it 'should use custom key', ->
+      expect(UploadCare._params(publicKey: 1)).toEqual(UPLOADCARE_PUB_KEY: 1)
+
+    it 'should add meduim name', ->
+      expect(UploadCare._params(meduim: 'test')).
+        toEqual(UPLOADCARE_PUB_KEY: 'ABCDEF', UPLOADCARE_MEDIUM: 'test')
+
   describe '.ready', ->
 
     it 'should call callback, when UploadCare is already initialized', ->
@@ -108,23 +131,17 @@ describe 'UploadCare', ->
       UploadCare.ready(another)
       expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
 
-  describe '.upload', ->
-    originUrl = UploadCare.uploadUrl
-
-    beforeEach ->
-      UploadCare.uploadUrl = location.href + 'iframe'
-
-    afterEach ->
-      UploadCare.uploadUrl = originUrl
+  describe '.byIframe', ->
+    originUrl = UploadCare.byIframe.uploadUrl
+    afterEach -> UploadCare.byIframe.uploadUrl = originUrl
 
     it 'should upload file to server', ->
-      UploadCare.publicKey = 'ABCDEF'
+      UploadCare.byIframe.uploadUrl = location.href + 'iframe'
       spyOn(UploadCare, '_uuid').andReturn('GENERATED-UUID')
-
-      file    = $('<input type="file" name="uploaded" />')
       success = jasmine.createSpy()
 
       answer = null
+      file = $('<input type="file" name="uploaded" />')
       UploadCare.upload(file, { meduim: 'test' }).
         success(success).
         success ->
@@ -137,15 +154,3 @@ describe 'UploadCare', ->
         expect(answer.UPLOADCARE_PUB_KEY).toEqual(UploadCare.publicKey)
         expect(answer.UPLOADCARE_MEDIUM).toEqual('test')
         expect(answer.uploaded).toBeDefined()
-
-    it 'should get public key from options', ->
-      UploadCare.publicKey = 'ABCDEF'
-      file = $('<input type="file" name="uploaded" />')
-
-      answer = null
-      UploadCare.upload(file, { publicKey: 'FEDCBA' }).success ->
-        answer = $.parseJSON($('iframe:last').contents().text())
-
-      waitsFor -> answer != null
-      runs ->
-        expect(answer.UPLOADCARE_PUB_KEY).toEqual('FEDCBA')
