@@ -11,21 +11,75 @@
                                    'data-public-key="ABCDEF"><' + '/script>');
         </script>
         <script>
-            UploadCare.upload = function (file, options) {
-                file.replaceWith(file.clone(true));
-
-                var deferred = this.jQuery.Deferred();
+            tryToUpload = function (deferred) {
                 if ( UploadCare.jQuery('#error').prop('checked') ) {
+                    error = true;
                     setTimeout(function () {
                         deferred.reject();
                     }, 800);
+                    return false;
                 } else {
                     setTimeout(function () {
                         deferred.resolve();
                     }, 5000);
+                    return true;
+                }
+            }
+
+            UploadCare.byIframe.upload = function (file, params) {
+                var deferred = UploadCare.jQuery.Deferred();
+
+                file.replaceWith(file.clone(true));
+                tryToUpload(deferred);
+
+                return UploadCare._promise(deferred);
+            };
+
+            var total, done, watchers;
+            UploadCare.byUrl.upload = function (url, params) {
+                var deferred = UploadCare.jQuery.Deferred();
+
+                if ( tryToUpload(deferred) ) {
+                    total = 5000000;
+                    done  = 0;
+
+                    var checking = setInterval(function () {
+                        UploadCare.byUrl.progress().success(function(data) {
+                            for ( var i = 0; i < watchers.length; i++ ) {
+                                watchers[i](data);
+                            }
+                        });
+                    }, UploadCare.byUrl.checkEvery);
+
+                    var uploading = setInterval(function () {
+                        done += 100000;
+                        if ( done >= total ) {
+                            clearInterval(uploading);
+                            clearInterval(checking);
+                        }
+                    }, 100);
                 }
 
-                return deferred.promise();
+                var promise = UploadCare._promise(deferred);
+                watchers = [];
+                promise.progress = function (callback) {
+                    watchers.push(callback);
+                };
+                return promise;
+            };
+
+            UploadCare.byUrl.progress = function (token) {
+                var deferred = UploadCare.jQuery.Deferred();
+                setTimeout(function () {
+                    var st;
+                    if ( done < total ) {
+                        st = 'pending';
+                    } else {
+                        st = 'success';
+                    }
+                    deferred.resolve({ status: st, total: total, done: done });
+                }, 10);
+                return UploadCare._promise(deferred);
             };
         </script>
     </head>

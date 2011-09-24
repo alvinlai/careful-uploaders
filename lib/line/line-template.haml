@@ -8,21 +8,31 @@
       .uploadcare-line-error-text
       %a.uploadcare-line-error-back( href="#" title="{t back}" )
   .uploadcare-line-cropper
+    .uploadcare-line-slider
 
-    - 'Upload from'
-    .uploadcare-line-upload
-      .uploadcare-line-thumb
-        .uploadcare-line-thumb-empty
-      .uploadcare-line-buttons
-        .uploadcare-line-file-input
-          {file}
-          %a.uploadcare-line-computer( href="#" )
+      - 'Upload from'
+      .uploadcare-line-upload
+        .uploadcare-line-thumb
+          .uploadcare-line-thumb-empty
+        .uploadcare-line-buttons
+          .uploadcare-line-file-input
+            {file}
+            %a.uploadcare-line-computer( href="#" )
+              .uploadcare-line-icon
+              {t computer}
+          %a.uploadcare-line-web( href="#" )
             .uploadcare-line-icon
-            {t computer}
-        %a.uploadcare-line-web( href="#" )
-          .uploadcare-line-icon
-          {t web}
-      {t uploadFrom}
+            {t web}
+        {t uploadFrom}
+
+      - 'Upload from URL'
+      .uploadcare-line-from-url
+        .uploadcare-line-title {t url}
+        .uploadcare-line-right
+          %input.uploadcare-line-url( type="url" )
+          .uploadcare-line-buttons
+            %a.uploadcare-line-url-submit( href="#" ) {t done}
+          %a.uploadcare-line-cancel( href="#" title="{t back}" )
 
     - 'Uploading'
     .uploadcare-line-uploading

@@ -101,6 +101,10 @@ describe 'UploadCare', ->
       expect(promise.complete).toBe(promise.always)
       expect(promise.test()).toEqual(1)
 
+    it 'should add progress method by default', ->
+      promise = UploadCare._promise($.Deferred())
+      expect(typeof(promise.progress)).toEqual('function')
+
   describe '._params', ->
 
     it 'should add global public key', ->
@@ -132,11 +136,12 @@ describe 'UploadCare', ->
       expect(another).toHaveBeenCalledWith(UploadCare.jQuery)
 
   describe '.byIframe', ->
-    originUrl = UploadCare.byIframe.uploadUrl
-    afterEach -> UploadCare.byIframe.uploadUrl = originUrl
 
     it 'should upload file to server', ->
+      originUrl = UploadCare.byIframe.uploadUrl
+      this.after -> UploadCare.byIframe.uploadUrl = originUrl
       UploadCare.byIframe.uploadUrl = location.href + 'iframe'
+
       spyOn(UploadCare, '_uuid').andReturn('GENERATED-UUID')
       success = jasmine.createSpy()
 

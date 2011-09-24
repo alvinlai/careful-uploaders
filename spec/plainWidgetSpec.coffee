@@ -10,7 +10,7 @@ describe 'UploadCare.Plain', ->
     form.hide().appendTo('body')
 
     uploading = $.Deferred()
-    spyOn(UploadCare, 'upload').andReturn(uploading.promise())
+    spyOn(UploadCare, 'upload').andReturn(UploadCare._promise(uploading))
 
   afterEach ->
     form.remove()
